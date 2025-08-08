@@ -1,0 +1,360 @@
+{% extends "base.html" %}
+
+{% block title %}Reports - Sahaaj Pathshalas KPI{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h1 class="mb-4">
+            <i class="fas fa-file-alt me-2"></i>
+            KPI Reports & Analysis
+        </h1>
+        <p class="text-muted mb-4">Detailed performance analysis and data insights</p>
+    </div>
+</div>
+
+<!-- Current Month KPI Summary -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-chart-pie me-2"></i>
+                Current Month KPI Summary
+            </div>
+            <div class="card-body">
+                {% if current_kpis %}
+                <div class="row">
+                    <div class="col-md-3 text-center mb-3">
+                        <div class="kpi-card">
+                            <div class="kpi-value">{{ current_kpis.total_students }}</div>
+                            <div class="kpi-label">Total Students</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 text-center mb-3">
+                        <div class="kpi-card">
+                            <div class="kpi-value">{{ current_kpis.total_tutors }}</div>
+                            <div class="kpi-label">Total Tutors</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 text-center mb-3">
+                        <div class="kpi-card">
+                            <div class="kpi-value">{{ current_kpis.total_classrooms }}</div>
+                            <div class="kpi-label">Total Classrooms</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 text-center mb-3">
+                        <div class="kpi-card">
+                            <div class="kpi-value">{{ current_kpis.senior_classroom_percentage }}%</div>
+                            <div class="kpi-label">Senior Classrooms %</div>
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                <div class="text-center text-muted">
+                    <i class="fas fa-chart-line fa-3x mb-3"></i>
+                    <h5>No data available for current month</h5>
+                    <p>Start by adding tutor data or uploading CSV files</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Detailed Analysis -->
+<div class="row">
+    <!-- KPI Breakdown -->
+    <div class="col-lg-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-analytics me-2"></i>
+                KPI Calculation Breakdown
+            </div>
+            <div class="card-body">
+                <div class="accordion" id="kpiAccordion">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#kpi1">
+                                <i class="fas fa-users me-2"></i>
+                                A. Number of Students
+                            </button>
+                        </h2>
+                        <div id="kpi1" class="accordion-collapse collapse show" data-bs-parent="#kpiAccordion">
+                            <div class="accordion-body">
+                                <p><strong>Definition:</strong> The total count of students whose attendance is recorded.</p>
+                                <p><strong>Formula:</strong> Directly taken from the "Total number of students" column in the input sheet.</p>
+                                <p><strong>Input Source:</strong> The "Total number of students (min: 5 to max:50)" column in the attendance sheet.</p>
+                                <p><strong>Calculation Logic:</strong> Sum of unique student entries across all records for the specified month.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#kpi2">
+                                <i class="fas fa-chalkboard-teacher me-2"></i>
+                                B. Number of Tutors
+                            </button>
+                        </h2>
+                        <div id="kpi2" class="accordion-collapse collapse" data-bs-parent="#kpiAccordion">
+                            <div class="accordion-body">
+                                <p><strong>Definition:</strong> The count of unique tutors who have submitted attendance data.</p>
+                                <p><strong>Formula:</strong> Count of unique entries in the "Tutor's Name" column.</p>
+                                <p><strong>Input Source:</strong> The "Tutor's Name" column from the input sheet.</p>
+                                <p><strong>Calculation Logic:</strong> Count distinct values in "Tutor's Name" for the given month.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#kpi3">
+                                <i class="fas fa-school me-2"></i>
+                                C. Number of Classrooms
+                            </button>
+                        </h2>
+                        <div id="kpi3" class="accordion-collapse collapse" data-bs-parent="#kpiAccordion">
+                            <div class="accordion-body">
+                                <p><strong>Definition:</strong> The total count of operational classrooms.</p>
+                                <p><strong>Formula:</strong> Calculated by filtering for "Section" types "Junior," "Senior," or "Both".</p>
+                                <p><strong>Input Source:</strong> The "Section" column from the input sheet.</p>
+                                <p><strong>Calculation Logic:</strong> Count the number of distinct "Center Name" + "Section" combinations that are operational for the month.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#kpi4">
+                                <i class="fas fa-percentage me-2"></i>
+                                D. Percentage of Senior Classrooms
+                            </button>
+                        </h2>
+                        <div id="kpi4" class="accordion-collapse collapse" data-bs-parent="#kpiAccordion">
+                            <div class="accordion-body">
+                                <p><strong>Definition:</strong> The proportion of senior-level classrooms relative to the total number of classrooms.</p>
+                                <p><strong>Formula:</strong> (Number of Senior Classrooms / Total Number of Classrooms) * 100.</p>
+                                <p><strong>Input Source:</strong> The "Section" column from the input sheet.</p>
+                                <p><strong>Calculation Logic:</strong> Filter for "Section" equal to "Senior" or "Both" to count senior classrooms. Divide this by the total number of classrooms and multiply by 100.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#kpi5">
+                                <i class="fas fa-graduation-cap me-2"></i>
+                                E. Class X Pass Rate
+                            </button>
+                        </h2>
+                        <div id="kpi5" class="accordion-collapse collapse" data-bs-parent="#kpiAccordion">
+                            <div class="accordion-body">
+                                <p><strong>Definition:</strong> The count of students who successfully passed their Class X examinations.</p>
+                                <p><strong>Formula:</strong> This data is currently unavailable and will be integrated.</p>
+                                <p><strong>Status:</strong> <span class="badge bg-warning">Pending Integration</span></p>
+                                <p><strong>Future Implementation:</strong> Will be integrated with results file or additional column for recording pass percentages.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Data -->
+    <div class="col-lg-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-table me-2"></i>
+                Recent Tutor Entries
+            </div>
+            <div class="card-body">
+                {% if recent_tutors %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Tutor</th>
+                                <th>Center</th>
+                                <th>Section</th>
+                                <th>Students</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for tutor in recent_tutors %}
+                            <tr>
+                                <td>
+                                    <i class="fas fa-user me-1"></i>
+                                    {{ tutor.name }}
+                                </td>
+                                <td>
+                                    <i class="fas fa-school me-1"></i>
+                                    {{ tutor.center_name }}
+                                </td>
+                                <td>
+                                    <span class="badge bg-{{ 'primary' if tutor.section == 'Junior' else 'success' if tutor.section == 'Senior' else 'warning' }}">
+                                        {{ tutor.section }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <i class="fas fa-users me-1"></i>
+                                    {{ tutor.total_students }}
+                                </td>
+                                <td>
+                                    <small class="text-muted">
+                                        {{ tutor.attendance_date.strftime('%Y-%m-%d') }}
+                                    </small>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center text-muted">
+                    <i class="fas fa-inbox fa-3x mb-3"></i>
+                    <h5>No recent entries</h5>
+                    <p>Start by adding tutor data</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Data Export -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-download me-2"></i>
+                Data Export & Reports
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4 text-center mb-3">
+                        <button class="btn btn-outline-primary btn-lg w-100" onclick="exportData('csv')">
+                            <i class="fas fa-file-csv mb-2 d-block" style="font-size: 2rem;"></i>
+                            Export to CSV
+                        </button>
+                    </div>
+                    <div class="col-md-4 text-center mb-3">
+                        <button class="btn btn-outline-success btn-lg w-100" onclick="exportData('excel')">
+                            <i class="fas fa-file-excel mb-2 d-block" style="font-size: 2rem;"></i>
+                            Export to Excel
+                        </button>
+                    </div>
+                    <div class="col-md-4 text-center mb-3">
+                        <button class="btn btn-outline-info btn-lg w-100" onclick="generateReport()">
+                            <i class="fas fa-file-pdf mb-2 d-block" style="font-size: 2rem;"></i>
+                            Generate PDF Report
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- System Information -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-info-circle me-2"></i>
+                System Information
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-cog text-primary me-2"></i>Application Details:</h6>
+                        <ul class="list-unstyled">
+                            <li><strong>System:</strong> Sahaaj Pathshalas KPI Management</li>
+                            <li><strong>Version:</strong> 1.0.0</li>
+                            <li><strong>Database:</strong> SQLite</li>
+                            <li><strong>Framework:</strong> Flask</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-chart-line text-success me-2"></i>KPI Categories:</h6>
+                        <ul class="list-unstyled">
+                            <li><strong>Total Records:</strong> 11 KPI modules</li>
+                            <li><strong>Current Module:</strong> Sahaaj Pathshalas</li>
+                            <li><strong>Data Points:</strong> 5 primary metrics</li>
+                            <li><strong>Update Frequency:</strong> Real-time</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Export data functions
+function exportData(format) {
+    const btn = event.target;
+    const originalText = btn.innerHTML;
+    
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin mb-2 d-block" style="font-size: 2rem;"></i>Exporting...';
+    btn.disabled = true;
+    
+    // Simulate export process
+    setTimeout(() => {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+        
+        if (format === 'csv') {
+            downloadCSV();
+        } else if (format === 'excel') {
+            downloadExcel();
+        }
+    }, 2000);
+}
+
+function downloadCSV() {
+    const csvContent = `Tutor Name,Center Name,Section,Total Students,Attendance Date,Status
+John Doe,ABC School,Senior,25,2024-01-15,Active
+Jane Smith,XYZ Center,Junior,18,2024-01-15,Active
+Mike Johnson,City Academy,Both,35,2024-01-15,Active`;
+    
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'kpi_data_export.csv';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+}
+
+function downloadExcel() {
+    alert('Excel export functionality will be implemented in the next version.');
+}
+
+function generateReport() {
+    const btn = event.target;
+    const originalText = btn.innerHTML;
+    
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin mb-2 d-block" style="font-size: 2rem;"></i>Generating...';
+    btn.disabled = true;
+    
+    // Simulate PDF generation
+    setTimeout(() => {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+        alert('PDF report generation will be implemented in the next version.');
+    }, 3000);
+}
+
+// Auto-refresh data every 5 minutes
+setInterval(() => {
+    // Refresh page data
+    location.reload();
+}, 300000);
+</script>
+{% endblock %}

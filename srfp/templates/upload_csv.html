@@ -1,0 +1,350 @@
+{% extends "base.html" %}
+
+{% block title %}Upload CSV - Sahaaj Pathshalas KPI{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h1 class="mb-4">
+            <i class="fas fa-upload me-2"></i>
+            Upload CSV Data
+        </h1>
+        <p class="text-muted mb-4">Bulk import tutor attendance data from CSV files</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <!-- Upload Form -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-file-csv me-2"></i>
+                CSV File Upload
+            </div>
+            <div class="card-body">
+                <form method="POST" enctype="multipart/form-data" id="uploadForm">
+                    <div class="upload-area" id="uploadArea">
+                        <div class="upload-content text-center">
+                            <i class="fas fa-cloud-upload-alt fa-3x text-muted mb-3"></i>
+                            <h5>Drag & Drop CSV File Here</h5>
+                            <p class="text-muted">or click to browse</p>
+                            <input type="file" id="csvFile" name="file" accept=".csv" class="file-input" required>
+                            <button type="button" class="btn btn-outline-primary" onclick="document.getElementById('csvFile').click()">
+                                <i class="fas fa-folder-open me-2"></i>
+                                Choose File
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-3" id="fileInfo" style="display: none;">
+                        <div class="alert alert-info">
+                            <i class="fas fa-file-csv me-2"></i>
+                            <strong id="fileName"></strong>
+                            <span class="badge bg-secondary ms-2" id="fileSize"></span>
+                        </div>
+                    </div>
+                    
+                    <div class="text-center mt-4">
+                        <button type="submit" class="btn btn-primary btn-lg" id="uploadBtn" disabled>
+                            <i class="fas fa-upload me-2"></i>
+                            Upload & Process
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- CSV Format Guidelines -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <i class="fas fa-info-circle me-2"></i>
+                CSV Format Requirements
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-table text-primary me-2"></i>Required Columns:</h6>
+                        <ul class="list-unstyled">
+                            <li><code>Tutor Name</code> - Full name of the tutor</li>
+                            <li><code>Center Name</code> - Name of the educational center</li>
+                            <li><code>Section</code> - Junior, Senior, or Both</li>
+                            <li><code>Total Students</code> - Number of students (5-50)</li>
+                            <li><code>Attendance Date</code> - Date in YYYY-MM-DD format</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-download text-success me-2"></i>Sample CSV:</h6>
+                        <div class="bg-light p-3 rounded">
+                            <small>
+                                <code>
+                                    Tutor Name,Center Name,Section,Total Students,Attendance Date<br>
+                                    John Doe,ABC School,Senior,25,2024-01-15<br>
+                                    Jane Smith,XYZ Center,Junior,18,2024-01-15<br>
+                                    Mike Johnson,City Academy,Both,35,2024-01-15
+                                </code>
+                            </small>
+                        </div>
+                        <button class="btn btn-sm btn-outline-success mt-2" onclick="downloadSample()">
+                            <i class="fas fa-download me-1"></i>
+                            Download Sample CSV
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Upload History -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <i class="fas fa-history me-2"></i>
+                Recent Uploads
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>File Name</th>
+                                <th>Records</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="uploadHistory">
+                            <tr>
+                                <td colspan="4" class="text-center text-muted">
+                                    <i class="fas fa-inbox fa-2x mb-2"></i>
+                                    <br>No uploads yet
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Progress Modal -->
+<div class="modal fade" id="progressModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-spinner fa-spin me-2"></i>
+                    Processing CSV
+                </h5>
+            </div>
+            <div class="modal-body">
+                <div class="progress mb-3">
+                    <div class="progress-bar progress-bar-striped progress-bar-animated" 
+                         role="progressbar" style="width: 0%"></div>
+                </div>
+                <p class="text-center" id="progressText">Initializing...</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<style>
+.upload-area {
+    border: 2px dashed #dee2e6;
+    border-radius: 15px;
+    padding: 40px;
+    text-align: center;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    background-color: #f8f9fa;
+}
+
+.upload-area:hover {
+    border-color: var(--secondary-color);
+    background-color: rgba(52, 152, 219, 0.05);
+}
+
+.upload-area.dragover {
+    border-color: var(--success-color);
+    background-color: rgba(39, 174, 96, 0.1);
+}
+
+.file-input {
+    display: none;
+}
+
+.upload-content {
+    pointer-events: none;
+}
+
+.upload-area:hover .upload-content {
+    pointer-events: auto;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const uploadArea = document.getElementById('uploadArea');
+    const fileInput = document.getElementById('csvFile');
+    const uploadBtn = document.getElementById('uploadBtn');
+    const fileInfo = document.getElementById('fileInfo');
+    const fileName = document.getElementById('fileName');
+    const fileSize = document.getElementById('fileSize');
+    
+    // Drag and drop functionality
+    uploadArea.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        uploadArea.classList.add('dragover');
+    });
+    
+    uploadArea.addEventListener('dragleave', function(e) {
+        e.preventDefault();
+        uploadArea.classList.remove('dragover');
+    });
+    
+    uploadArea.addEventListener('drop', function(e) {
+        e.preventDefault();
+        uploadArea.classList.remove('dragover');
+        
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+            fileInput.files = files;
+            handleFileSelect(files[0]);
+        }
+    });
+    
+    // File input change
+    fileInput.addEventListener('change', function(e) {
+        if (e.target.files.length > 0) {
+            handleFileSelect(e.target.files[0]);
+        }
+    });
+    
+    // Handle file selection
+    function handleFileSelect(file) {
+        if (file.type !== 'text/csv' && !file.name.endsWith('.csv')) {
+            alert('Please select a valid CSV file.');
+            return;
+        }
+        
+        if (file.size > 16 * 1024 * 1024) { // 16MB limit
+            alert('File size must be less than 16MB.');
+            return;
+        }
+        
+        fileName.textContent = file.name;
+        fileSize.textContent = formatFileSize(file.size);
+        fileInfo.style.display = 'block';
+        uploadBtn.disabled = false;
+        
+        // Preview CSV content
+        previewCSV(file);
+    }
+    
+    // Format file size
+    function formatFileSize(bytes) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+    
+    // Preview CSV content
+    function previewCSV(file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const csv = e.target.result;
+            const lines = csv.split('\n');
+            const headers = lines[0].split(',');
+            
+            // Validate headers
+            const requiredHeaders = ['Tutor Name', 'Center Name', 'Section', 'Total Students', 'Attendance Date'];
+            const missingHeaders = requiredHeaders.filter(h => !headers.includes(h));
+            
+            if (missingHeaders.length > 0) {
+                alert(`Missing required columns: ${missingHeaders.join(', ')}`);
+                uploadBtn.disabled = true;
+                return;
+            }
+            
+            // Show preview
+            const preview = lines.slice(1, 4).map(line => line.split(',')).filter(row => row.length > 1);
+            if (preview.length > 0) {
+                console.log('CSV Preview:', preview);
+            }
+        };
+        reader.readAsText(file);
+    }
+    
+    // Form submission
+    document.getElementById('uploadForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(this);
+        const progressModal = new bootstrap.Modal(document.getElementById('progressModal'));
+        
+        progressModal.show();
+        
+        // Simulate progress
+        let progress = 0;
+        const progressBar = document.querySelector('.progress-bar');
+        const progressText = document.getElementById('progressText');
+        
+        const progressInterval = setInterval(() => {
+            progress += Math.random() * 20;
+            if (progress > 90) progress = 90;
+            
+            progressBar.style.width = progress + '%';
+            progressText.textContent = `Processing... ${Math.round(progress)}%`;
+        }, 200);
+        
+        // Submit form
+        fetch('/upload-csv', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.text())
+        .then(data => {
+            clearInterval(progressInterval);
+            progressBar.style.width = '100%';
+            progressText.textContent = 'Upload Complete!';
+            
+            setTimeout(() => {
+                progressModal.hide();
+                location.reload(); // Reload to show flash messages
+            }, 1000);
+        })
+        .catch(error => {
+            clearInterval(progressInterval);
+            progressText.textContent = 'Upload Failed!';
+            console.error('Upload error:', error);
+            
+            setTimeout(() => {
+                progressModal.hide();
+            }, 2000);
+        });
+    });
+});
+
+// Download sample CSV
+function downloadSample() {
+    const csvContent = `Tutor Name,Center Name,Section,Total Students,Attendance Date
+John Doe,ABC School,Senior,25,2024-01-15
+Jane Smith,XYZ Center,Junior,18,2024-01-15
+Mike Johnson,City Academy,Both,35,2024-01-15
+Sarah Wilson,Education Hub,Senior,22,2024-01-15
+David Brown,Learning Center,Junior,15,2024-01-15`;
+    
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'sample_tutor_data.csv';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+}
+</script>
+{% endblock %}

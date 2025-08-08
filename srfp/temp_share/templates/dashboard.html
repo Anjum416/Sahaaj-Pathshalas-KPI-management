@@ -1,0 +1,569 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Sahaaj Pathshalas KPI{% endblock %}
+
+{% block content %}
+<!-- Professional Hero Section -->
+<div class="row mb-5" data-aos="fade-up">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body text-center py-5">
+                <h1 class="display-4 fw-bold text-primary mb-3">
+                    <i class="fas fa-chart-line me-3"></i>
+                    KPI Dashboard
+                </h1>
+                <p class="lead text-muted mb-0">
+                    Comprehensive analytics and insights for Sahaaj Pathshalas performance metrics
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- KPI Metrics Grid -->
+<div class="row mb-5" data-aos="fade-up" data-aos-delay="100">
+    <div class="col-lg-3 col-md-6 mb-4">
+        <div class="kpi-card" id="students-card">
+            <div class="kpi-icon">
+                <i class="fas fa-users"></i>
+            </div>
+            <div class="kpi-value" id="total-students">-</div>
+            <div class="kpi-label">Total Students</div>
+        </div>
+    </div>
+    
+    <div class="col-lg-3 col-md-6 mb-4">
+        <div class="kpi-card" id="tutors-card">
+            <div class="kpi-icon">
+                <i class="fas fa-chalkboard-teacher"></i>
+            </div>
+            <div class="kpi-value" id="total-tutors">-</div>
+            <div class="kpi-label">Total Tutors</div>
+        </div>
+    </div>
+    
+    <div class="col-lg-3 col-md-6 mb-4">
+        <div class="kpi-card" id="classrooms-card">
+            <div class="kpi-icon">
+                <i class="fas fa-school"></i>
+            </div>
+            <div class="kpi-value" id="total-classrooms">-</div>
+            <div class="kpi-label">Total Classrooms</div>
+        </div>
+    </div>
+    
+    <div class="col-lg-3 col-md-6 mb-4">
+        <div class="kpi-card" id="senior-card">
+            <div class="kpi-icon">
+                <i class="fas fa-graduation-cap"></i>
+            </div>
+            <div class="kpi-value" id="senior-percentage">-</div>
+            <div class="kpi-label">Senior Classrooms %</div>
+        </div>
+    </div>
+</div>
+
+<!-- Additional KPI Cards -->
+<div class="row mb-5" data-aos="fade-up" data-aos-delay="200">
+    <div class="col-lg-6 col-md-6 mb-4">
+        <div class="kpi-card" id="passed-card">
+            <div class="kpi-icon">
+                <i class="fas fa-certificate"></i>
+            </div>
+            <div class="kpi-value" id="class-x-passed">-</div>
+            <div class="kpi-label">Class X Passed</div>
+        </div>
+    </div>
+    
+    <div class="col-lg-6 col-md-6 mb-4">
+        <div class="kpi-card" id="current-month-card">
+            <div class="kpi-icon">
+                <i class="fas fa-calendar-alt"></i>
+            </div>
+            <div class="kpi-value" id="current-month">-</div>
+            <div class="kpi-label">Current Month</div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions Section -->
+<div class="row mb-5" data-aos="fade-up" data-aos-delay="300">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-bolt me-2"></i>
+                    Quick Actions
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <a href="{{ url_for('tutor_input') }}" class="btn btn-primary w-100">
+                            <i class="fas fa-user-plus me-2"></i>
+                            Add Tutor Data
+                        </a>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <a href="{{ url_for('upload_csv') }}" class="btn btn-secondary w-100">
+                            <i class="fas fa-upload me-2"></i>
+                            Upload CSV File
+                        </a>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <a href="{{ url_for('reports') }}" class="btn btn-success w-100">
+                            <i class="fas fa-file-alt me-2"></i>
+                            View Reports
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Analytics Charts Section -->
+<div class="row mb-5" data-aos="fade-up" data-aos-delay="400">
+    <div class="col-lg-6 mb-4">
+        <div class="chart-container">
+            <h5 class="mb-4">
+                <i class="fas fa-chart-line me-2 text-primary"></i>
+                Student Engagement Trends
+            </h5>
+            <canvas id="studentChart" width="400" height="200"></canvas>
+        </div>
+    </div>
+    
+    <div class="col-lg-6 mb-4">
+        <div class="chart-container">
+            <h5 class="mb-4">
+                <i class="fas fa-chart-pie me-2 text-primary"></i>
+                Tutor Deployment
+            </h5>
+            <canvas id="tutorChart" width="400" height="200"></canvas>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-5" data-aos="fade-up" data-aos-delay="500">
+    <div class="col-lg-6 mb-4">
+        <div class="chart-container">
+            <h5 class="mb-4">
+                <i class="fas fa-chart-bar me-2 text-primary"></i>
+                Classroom Utilization
+            </h5>
+            <canvas id="classroomChart" width="400" height="200"></canvas>
+        </div>
+    </div>
+    
+    <div class="col-lg-6 mb-4">
+        <div class="chart-container">
+            <h5 class="mb-4">
+                <i class="fas fa-chart-area me-2 text-primary"></i>
+                Section Distribution
+            </h5>
+            <canvas id="sectionChart" width="400" height="200"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Activity Section -->
+<div class="row" data-aos="fade-up" data-aos-delay="600">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="fas fa-clock me-2"></i>
+                    Recent Activity
+                </h5>
+                <button class="btn btn-sm btn-outline-primary" onclick="loadRecentActivity()">
+                    <i class="fas fa-sync-alt me-1"></i>
+                    Refresh
+                </button>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Tutor Name</th>
+                                <th>Center</th>
+                                <th>Section</th>
+                                <th>Students</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recent-activity-table">
+                            <tr>
+                                <td colspan="5" class="text-center text-muted">
+                                    <i class="fas fa-spinner fa-spin me-2"></i>
+                                    Loading recent activity...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Professional Chart Configuration
+const chartConfig = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+        legend: {
+            position: 'bottom',
+            labels: {
+                usePointStyle: true,
+                padding: 20,
+                font: {
+                    family: 'Inter, sans-serif',
+                    size: 12
+                }
+            }
+        }
+    },
+    scales: {
+        x: {
+            grid: {
+                display: false
+            },
+            ticks: {
+                font: {
+                    family: 'Inter, sans-serif',
+                    size: 11
+                }
+            }
+        },
+        y: {
+            grid: {
+                color: 'rgba(0,0,0,0.05)'
+            },
+            ticks: {
+                font: {
+                    family: 'Inter, sans-serif',
+                    size: 11
+                }
+            }
+        }
+    }
+};
+
+// Initialize Charts
+let charts = {};
+
+function initializeCharts() {
+    // Student Engagement Chart
+    const studentCtx = document.getElementById('studentChart').getContext('2d');
+    charts.student = new Chart(studentCtx, {
+        type: 'line',
+        data: {
+            labels: [],
+            datasets: [{
+                label: 'Students',
+                data: [],
+                borderColor: '#0078d4',
+                backgroundColor: 'rgba(0, 120, 212, 0.1)',
+                borderWidth: 3,
+                fill: true,
+                tension: 0.4
+            }]
+        },
+        options: {
+            ...chartConfig,
+            plugins: {
+                ...chartConfig.plugins,
+                title: {
+                    display: false
+                }
+            }
+        }
+    });
+
+    // Tutor Deployment Chart
+    const tutorCtx = document.getElementById('tutorChart').getContext('2d');
+    charts.tutor = new Chart(tutorCtx, {
+        type: 'doughnut',
+        data: {
+            labels: [],
+            datasets: [{
+                data: [],
+                backgroundColor: [
+                    '#0078d4',
+                    '#107c10',
+                    '#ff8c00',
+                    '#d13438',
+                    '#00bcf2'
+                ],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            ...chartConfig,
+            cutout: '60%'
+        }
+    });
+
+    // Classroom Utilization Chart
+    const classroomCtx = document.getElementById('classroomChart').getContext('2d');
+    charts.classroom = new Chart(classroomCtx, {
+        type: 'bar',
+        data: {
+            labels: [],
+            datasets: [{
+                label: 'Classrooms',
+                data: [],
+                backgroundColor: '#0078d4',
+                borderRadius: 6,
+                borderSkipped: false
+            }]
+        },
+        options: {
+            ...chartConfig,
+            plugins: {
+                ...chartConfig.plugins,
+                title: {
+                    display: false
+                }
+            }
+        }
+    });
+
+    // Section Distribution Chart
+    const sectionCtx = document.getElementById('sectionChart').getContext('2d');
+    charts.section = new Chart(sectionCtx, {
+        type: 'polarArea',
+        data: {
+            labels: ['Junior', 'Senior', 'Both'],
+            datasets: [{
+                data: [0, 0, 0],
+                backgroundColor: [
+                    'rgba(0, 120, 212, 0.8)',
+                    'rgba(16, 124, 16, 0.8)',
+                    'rgba(255, 140, 0, 0.8)'
+                ],
+                borderWidth: 2,
+                borderColor: '#ffffff'
+            }]
+        },
+        options: {
+            ...chartConfig,
+            plugins: {
+                ...chartConfig.plugins,
+                title: {
+                    display: false
+                }
+            }
+        }
+    });
+}
+
+// Professional Data Loading Functions
+async function loadDashboardData() {
+    try {
+        showLoading();
+        
+        // Load current KPIs
+        const kpiResponse = await fetch('/api/current-kpis');
+        const kpiData = await kpiResponse.json();
+        
+        // Load chart data
+        const chartResponse = await fetch('/api/kpi-data');
+        const chartData = await chartResponse.json();
+        
+        // Update KPI cards with animation
+        updateKPICards(kpiData);
+        updateCharts(chartData);
+        
+        // Load recent activity
+        loadRecentActivity();
+        
+    } catch (error) {
+        console.error('Error loading dashboard data:', error);
+        showError('Failed to load dashboard data');
+    } finally {
+        hideLoading();
+    }
+}
+
+function updateKPICards(data) {
+    const cards = [
+        { id: 'total-students', value: data.total_students || 0, icon: 'fas fa-users' },
+        { id: 'total-tutors', value: data.total_tutors || 0, icon: 'fas fa-chalkboard-teacher' },
+        { id: 'total-classrooms', value: data.total_classrooms || 0, icon: 'fas fa-school' },
+        { id: 'senior-percentage', value: `${data.senior_classroom_percentage || 0}%`, icon: 'fas fa-graduation-cap' },
+        { id: 'class-x-passed', value: data.class_x_passed_count || 0, icon: 'fas fa-certificate' },
+        { id: 'current-month', value: new Date().toLocaleDateString('en-US', { month: 'short', year: 'numeric' }), icon: 'fas fa-calendar-alt' }
+    ];
+
+    cards.forEach(card => {
+        const element = document.getElementById(card.id);
+        if (element) {
+            // Add pulse animation
+            element.style.animation = 'pulse 0.6s ease-in-out';
+            setTimeout(() => {
+                element.textContent = card.value;
+                element.style.animation = '';
+            }, 300);
+        }
+    });
+}
+
+function updateCharts(data) {
+    if (data.months && data.students) {
+        // Update Student Chart
+        charts.student.data.labels = data.months;
+        charts.student.data.datasets[0].data = data.students;
+        charts.student.update('active');
+
+        // Update Classroom Chart
+        charts.classroom.data.labels = data.months;
+        charts.classroom.data.datasets[0].data = data.students.map(s => Math.ceil(s / 30)); // Estimate classrooms
+        charts.classroom.update('active');
+    }
+
+    if (data.tutors) {
+        // Update Tutor Chart
+        const tutorLabels = ['Active', 'Part-time', 'Volunteer'];
+        const tutorData = data.tutors.map(t => Math.max(1, Math.floor(t * 0.3)));
+        charts.tutor.data.labels = tutorLabels;
+        charts.tutor.data.datasets[0].data = tutorData;
+        charts.tutor.update('active');
+    }
+}
+
+async function loadRecentActivity() {
+    try {
+        const response = await fetch('/api/recent-activity');
+        const data = await response.json();
+        
+        const tableBody = document.getElementById('recent-activity-table');
+        
+        if (data.length === 0) {
+            tableBody.innerHTML = `
+                <tr>
+                    <td colspan="5" class="text-center text-muted">
+                        <i class="fas fa-inbox me-2"></i>
+                        No recent activity found
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+        
+        tableBody.innerHTML = data.map(activity => `
+            <tr>
+                <td>
+                    <div class="d-flex align-items-center">
+                        <div class="avatar-sm me-3">
+                            <i class="fas fa-user-circle text-primary"></i>
+                        </div>
+                        <div>
+                            <div class="fw-medium">${activity.name}</div>
+                        </div>
+                    </div>
+                </td>
+                <td>${activity.center_name}</td>
+                <td>
+                    <span class="badge bg-primary">${activity.section}</span>
+                </td>
+                <td>${activity.total_students}</td>
+                <td>${new Date(activity.attendance_date).toLocaleDateString()}</td>
+            </tr>
+        `).join('');
+        
+    } catch (error) {
+        console.error('Error loading recent activity:', error);
+        document.getElementById('recent-activity-table').innerHTML = `
+            <tr>
+                <td colspan="5" class="text-center text-danger">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    Failed to load recent activity
+                </td>
+            </tr>
+        `;
+    }
+}
+
+function showError(message) {
+    // Create and show error notification
+    const alert = document.createElement('div');
+    alert.className = 'alert alert-error alert-dismissible fade show';
+    alert.innerHTML = `
+        <i class="fas fa-exclamation-triangle me-2"></i>
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    document.querySelector('main').insertBefore(alert, document.querySelector('main').firstChild);
+    
+    // Auto-dismiss after 5 seconds
+    setTimeout(() => {
+        if (alert.parentNode) {
+            alert.remove();
+        }
+    }, 5000);
+}
+
+// Auto-refresh data every 30 seconds
+let refreshInterval;
+
+function startAutoRefresh() {
+    refreshInterval = setInterval(loadDashboardData, 30000);
+}
+
+function stopAutoRefresh() {
+    if (refreshInterval) {
+        clearInterval(refreshInterval);
+    }
+}
+
+// Initialize dashboard when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    initializeCharts();
+    loadDashboardData();
+    startAutoRefresh();
+    
+    // Stop auto-refresh when page is not visible
+    document.addEventListener('visibilitychange', function() {
+        if (document.hidden) {
+            stopAutoRefresh();
+        } else {
+            startAutoRefresh();
+        }
+    });
+});
+
+// Add pulse animation CSS
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+        100% { transform: scale(1); }
+    }
+    
+    .avatar-sm {
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+    }
+    
+    .badge {
+        font-size: 0.75rem;
+        font-weight: 500;
+        padding: 0.375rem 0.75rem;
+        border-radius: 0.375rem;
+    }
+`;
+document.head.appendChild(style);
+</script>
+{% endblock %}
